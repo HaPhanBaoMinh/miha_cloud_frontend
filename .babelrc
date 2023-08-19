@@ -1,0 +1,24 @@
+{
+  "presets": [
+    "next/babel",
+    "@emotion/babel-preset-css-prop"
+  ],
+  "plugins": [
+    [
+      "inline-react-svg",
+      {
+        "svgo": {
+          "plugins": [
+            {
+              "name": "removeViewBox",
+              "active": false
+            }
+          ]
+        }
+      }
+    ],
+    "@babel/plugin-transform-runtime",
+    "babel-plugin-macros",
+    "@emotion/babel-plugin"
+  ]
+}
