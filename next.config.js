@@ -2,10 +2,9 @@ require('dotenv').config()
 const path = require('path')
 
 const isProd = process.env.NODE_ENV === 'production'
-
 const nextConfig = {
   reactStrictMode: false,
-  output: 'export',
+  // output: 'export',
   compiler: {
     emotion: true
   },
@@ -15,7 +14,7 @@ const nextConfig = {
   },
   distDir: 'build',
   trailingSlash: true,
-  assetPrefix: isProd ? '' : undefined,
+  // assetPrefix: isProd ? '' : undefined,
   images: {
     domains: ['localhost', '127.0.0.1']
   },
