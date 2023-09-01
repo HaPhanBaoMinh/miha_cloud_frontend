@@ -75,10 +75,11 @@ function LoginPage () {
               </Form.Item>
               <Form.Item
                 rules={[{ required: true, message: 'Please provide your password!' }]}
-                label='Password' name='password'
+                label='Password'
+                name='password'
                 labelCol={{ span: 24, style: { paddingBottom: 0, fontWeight: 500 } }}
               >
-                <Input placeholder='correct horse battery staple' style={{ border: '2px solid black', borderRadius: '0' }} />
+                <Input placeholder='correct horse battery staple' type='password' style={{ border: '2px solid black', borderRadius: '0' }} />
               </Form.Item>
               <Form.Item>
                 <SubmitButton htmltype='submit'>

@@ -16,6 +16,7 @@ import classnames from 'classnames'
 import styled from '@emotion/styled'
 import tw from 'twin.macro'
 import DeploymentSettings from '@/components/Settings'
+import EnvironmentSettings from '@/components/EnvironmentSettings'
 
 const Terminal = dynamic(() => import('@/components/Terminal'), { ssr: false })
 
@@ -34,9 +35,10 @@ function DeploymentDetail ({ serviceName }) {
       setStatus(deploymentData?.status)
       return deploymentData
     }).then(deploymentData => {
-      connectSocket(`${DJANGO_BASE_WS}/ws/deployment/${deploymentData.name}`)
+      connectSocket(`${DJANGO_BASE_WS}/ws/deployment/${deploymentData.code}`)
     }).catch(e => {
       console.log(e)
+      router.push('/login')
     }).finally(() => {
       setLoading(false)
     })
@@ -75,7 +77,7 @@ function DeploymentDetail ({ serviceName }) {
             <h2 className='text-xl font-semibold'>{deployment?.name}</h2>
             <span className='py-0.5 px-3 font-semibold bg-secondary rounded'>{deployment?.package_name}</span>
           </div>
-          <Link href={`${deployment?.git_url}/tree/${deployment?.git_branch}`} title='github url' className='flex hover:underline gap-1 items-center font-medium py-1'>
+          <Link href={`${deployment?.git_url}/tree/${deployment?.git_branch}`} title='github url' className='flex hover:underline gap-1 w-fit items-center font-medium py-1'>
             <AiOutlineGithub className='text-xl' />
             <p className='flex items-center'>
               {SplitGithubUrl(deployment?.git_url).username} / {SplitGithubUrl(deployment?.git_url).repoName}
@@ -104,10 +106,14 @@ function DeploymentDetail ({ serviceName }) {
           <SiteButton onClick={() => setSelectTab('settings')} className={`${classnames({ active: selectTab === 'settings' })}`}>
             Settings
           </SiteButton>
+          <SiteButton onClick={() => setSelectTab('environment')} className={`${classnames({ active: selectTab === 'environment' })}`}>
+            Environment
+          </SiteButton>
         </div>
         <div className='col-span-9 px-10 flex gap-3 flex-col justify-end'>
           {selectTab === 'logs' && <Terminal deploymentCode={deployment?.code} buildNumber={deployment?.build_time} lastedDeploy={deployment?.lasted_deploy} status={status} />}
           {selectTab === 'settings' && <DeploymentSettings deployment={deployment} serviceName={serviceName} />}
+          {selectTab === 'environment' && <EnvironmentSettings deployment={deployment} />}
         </div>
       </div>
     </div>

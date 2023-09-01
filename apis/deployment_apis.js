@@ -47,3 +47,7 @@ export const getLogsListAPI = (params) => {
 export const updateDeploymentSettingsAPI = (data) => {
   return deploymentAxios.post(BASE_URL + 'update-deployment/', data)
 }
+
+export const getServicesAPI = () => {
+  return deploymentAxios.get(BASE_URL + 'service-list/')
+}
