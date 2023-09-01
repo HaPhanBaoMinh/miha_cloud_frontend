@@ -9,7 +9,6 @@ import SiteFooter from './SiteFooter'
 import Link from 'next/link'
 import { Menu, Transition } from '@headlessui/react'
 import { BRAND_NAME, OG_TITLE } from '@/constants'
-import { DJANGO_BASE_URL, SITE_BASE_URL } from '@/constants'
 import {
   AiOutlineCreditCard,
   AiOutlineDashboard,
@@ -38,7 +37,7 @@ const ignoreHeaderURLsList = [
 const Toast = dynamic(() => import('./Toast'), { ssr: false })
 const GoTop = dynamic(() => import('./GoTop'), { ssr: false })
 
-function SiteLayout(props) {
+function SiteLayout (props) {
   const router = useRouter()
   const { Auth, setAuth } = useContext(AuthContext)
   const [loading, setLoading] = React.useState(false)
@@ -65,7 +64,6 @@ function SiteLayout(props) {
       console.log(err)
       router.push('/login')
       setAuth(null)
-      window.location.href = `${SITE_BASE_URL}/login`
     })
   }
 
@@ -119,129 +117,15 @@ function SiteLayout(props) {
               !Auth
                 ? <nav className='hidden lg:flex items-center ml-auto '>
                   <LoadingSpin />
-                </nav>
-                : !Auth.is_auth
-                  ? <nav className='hidden lg:flex items-center ml-auto '>
-                    <div className='bg-secondary border-black border-2 font-semibold active:font-semibold active:outline-dashed'>
-                      <TopNavButton href='/login/'>
-                        Login
-                      </TopNavButton>
-                    </div>
                   </nav>
-                  : <div className='hidden lg:flex gap-2 lg:max-w-[25%]'>
-                    <Menu as='div' className='relative inline-block text-left w-full'>
-                      <div className='w-full h-full flex items-center'>
-                        <Menu.Button className='w-full bg-secondary border-black border-2 px-2 py-1 flex gap-1 justify-center items-center font-semibold active:font-semibold active:outline-dashed'>
-                          <span>NEW</span>
-                          <HiPlus />
-                        </Menu.Button>
-                      </div>
-                      <Transition
-                        as={Fragment}
-                        enter='transition ease-out duration-100'
-                        enterFrom='transform opacity-0 scale-95'
-                        enterTo='transform opacity-100 scale-100'
-                        leave='transition ease-in duration-75'
-                        leaveFrom='transform opacity-100 scale-100'
-                        leaveTo='transform opacity-0 scale-95'
-                      >
-                        <Menu.Items>
-                          <div className='absolute p-2 right-0 w-56 mt-1 origin-top-right bg-white divide-y divide-gray-100 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none'>
-                            <Menu.Item>
-                              {({ active }) => (
-                                <Link
-                                  className={`${active ? 'bg-gray-100' : 'text-gray-900'
-                                    } group flex items-center w-full px-3 py-2 text-sm`}
-                                  href='/select-repo?type=static'
-                                  title='Create new package'
-                                >
-                                  <AiOutlineLayout className='w-5 h-5' />
-                                  <span className='ml-2'>Static Site</span>
-                                </Link>
-                              )}
-                            </Menu.Item>
-                            <Menu.Item>
-                              {({ active }) => (
-                                <Link
-                                  className={`${active ? 'bg-gray-100' : 'text-gray-900'
-                                    } group flex items-center w-full px-3 py-2 text-sm`}
-                                  href='/select-repo?type=web-service'
-                                  title='Create new package'
-                                >
-                                  <AiOutlineCloudServer className='w-5 h-5' />
-                                  <span className='ml-2'>Web service</span>
-                                </Link>
-                              )}
-                            </Menu.Item>
-                          </div>
-                        </Menu.Items>
-                      </Transition>
-                    </Menu>
-                    <Menu as='div' className='relative inline-block text-left w-full'>
-                      <div className='w-full h-full flex items-center'>
-                        <Menu.Button className='w-full flex justify-center items-center'>
-                          <PiUserCircleLight className='w-7 h-7 mx-1' />
-                          <p className='max-w-[70%] mr-1 overflow-hidden text-base overflow-ellipsis h-full text-start flex items-center'>{Auth.username}</p>
-                          <IoIosArrowDown className='w-4 h-4' />
-                        </Menu.Button>
-                      </div>
-                      <Transition
-                        as={Fragment}
-                        enter='transition ease-out duration-100'
-                        enterFrom='transform opacity-0 scale-95'
-                        enterTo='transform opacity-100 scale-100'
-                        leave='transition ease-in duration-75'
-                        leaveFrom='transform opacity-100 scale-100'
-                        leaveTo='transform opacity-0 scale-95'
-                      >
-                        <Menu.Items>
-                          <div className='absolute p-2 right-0 w-56 mt-1 origin-top-right bg-white divide-y divide-gray-100 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none'>
-                            <Menu.Item>
-                              {({ active }) => (
-                                <button
-                                  className={`${active ? 'bg-gray-100' : 'text-gray-900'
-                                    } group flex items-center w-full px-3 py-2 text-sm`}
-                                >
-                                  <AiOutlineSetting className='w-5 h-5' />
-                                  <span className='ml-2'>Settings</span>
-                                </button>
-                              )}
-                            </Menu.Item>
-                            <Menu.Item>
-                              {({ active }) => (
-                                <button
-                                  className={`${active ? 'bg-gray-100' : 'text-gray-900'
-                                    } group flex items-center w-full px-3 py-2 text-sm`}
-                                >
-                                  <AiOutlineCreditCard className='w-5 h-5' />
-                                  <span className='ml-2'>Billing</span>
-                                </button>
-                              )}
-                            </Menu.Item>
-                            <Menu.Item>
-                              {({ active }) => (
-                                <button
-                                  onClick={onLogout}
-                                  className={`${active ? 'bg-gray-100' : 'text-gray-900'
-                                    } group flex items-center w-full px-3 py-2 text-sm`}
-                                >
-                                  <AiOutlineExport className='w-5 h-5 text-secondary' />
-                                  <span className='ml-2 text-secondary'>Logout</span>
-                                </button>
-                              )}
-                            </Menu.Item>
-                          </div>
-                        </Menu.Items>
-                      </Transition>
-                    </Menu>
-                  </div>
+                : !Auth.is_auth
                     ? <nav className='hidden lg:flex items-center ml-auto '>
                       <div className='bg-secondary border-black border-2 font-semibold active:font-semibold active:outline-dashed'>
                         <TopNavButton href='/login/'>
                           Login
                         </TopNavButton>
                       </div>
-                    </nav>
+                      </nav>
                     : <div className='hidden lg:flex gap-2 lg:max-w-[25%]'>
                       <Menu as='div' className='relative inline-block text-left w-full'>
                         <div className='w-full h-full flex items-center'>
@@ -266,8 +150,9 @@ function SiteLayout(props) {
                                   <Menu.Item key={uuidv4()} >
                                     {({ active }) => (
                                       <Link
-                                        className={`${active ? 'bg-gray-100' : 'text-gray-900'
-                                          } group flex items-center w-full px-3 py-2 text-sm`}
+                                        className={`${
+                                          active ? 'bg-gray-100' : 'text-gray-900'
+                                        } group flex items-center w-full px-3 py-2 text-sm`}
                                         href={`/select-repo?type=${item?.slug}`}
                                         title='Create new package'
                                       >
@@ -278,6 +163,7 @@ function SiteLayout(props) {
                                   </Menu.Item>
                                 )
                               }
+
                             </div>
                           </Menu.Items>
                         </Transition>
@@ -304,7 +190,8 @@ function SiteLayout(props) {
                               <Menu.Item>
                                 {({ active }) => (
                                   <button
-                                    className={`${active ? 'bg-gray-100' : 'text-gray-900'
+                                    className={`${
+                                        active ? 'bg-gray-100' : 'text-gray-900'
                                       } group flex items-center w-full px-3 py-2 text-sm`}
                                   >
                                     <AiOutlineSetting className='w-5 h-5' />
@@ -315,7 +202,8 @@ function SiteLayout(props) {
                               <Menu.Item>
                                 {({ active }) => (
                                   <button
-                                    className={`${active ? 'bg-gray-100' : 'text-gray-900'
+                                    className={`${
+                                        active ? 'bg-gray-100' : 'text-gray-900'
                                       } group flex items-center w-full px-3 py-2 text-sm`}
                                   >
                                     <AiOutlineCreditCard className='w-5 h-5' />
@@ -327,7 +215,8 @@ function SiteLayout(props) {
                                 {({ active }) => (
                                   <button
                                     onClick={onLogout}
-                                    className={`${active ? 'bg-gray-100' : 'text-gray-900'
+                                    className={`${
+                                        active ? 'bg-gray-100' : 'text-gray-900'
                                       } group flex items-center w-full px-3 py-2 text-sm`}
                                   >
                                     <AiOutlineExport className='w-5 h-5 text-secondary' />
@@ -339,7 +228,7 @@ function SiteLayout(props) {
                           </Menu.Items>
                         </Transition>
                       </Menu>
-                    </div>
+                      </div>
             }
           </div>
 
@@ -359,14 +248,14 @@ function SiteLayout(props) {
                       <LoadingSpin />
                     </nav>
                     : !Auth.is_auth
-                      ? <nav className='lg:hidden items-center ml-auto '>
+                        ? <nav className='lg:hidden items-center ml-auto '>
                         <div className='bg-secondary border-black border-2 font-semibold active:font-semibold active:outline-dashed'>
                           <TopNavButton href='/login/'>
                             Login
                           </TopNavButton>
                         </div>
                       </nav>
-                      : <div className='lg:hidden gap-2 lg:max-w-[25%] flex'>
+                        : <div className='lg:hidden gap-2 lg:max-w-[25%] flex'>
                         <Menu as='div' className='relative inline-block text-left w-full'>
                           <div className='w-full h-full flex items-center'>
                             <Menu.Button className='w-full flex justify-center items-center'>
@@ -391,8 +280,9 @@ function SiteLayout(props) {
                                     <Link
                                       href='/select-repo?type=static'
                                       title='Create new package'
-                                      className={`${active ? 'bg-gray-100' : 'text-gray-900'
-                                        } group flex items-center w-full px-3 py-2 text-sm`}
+                                      className={`${
+                                        active ? 'bg-gray-100' : 'text-gray-900'
+                                      } group flex items-center w-full px-3 py-2 text-sm`}
                                     >
                                       <AiOutlineLayout className='w-5 h-5' />
                                       <span className='ml-2'>Static Site</span>
@@ -404,22 +294,21 @@ function SiteLayout(props) {
                                     <Link
                                       href='/'
                                       title='Dashboard'
-                                      className={`${active ? 'bg-gray-100' : 'text-gray-900'
-                                        } group flex items-center w-full px-3 py-2 text-sm`}
+                                      className={`${
+                                        active ? 'bg-gray-100' : 'text-gray-900'
+                                      } group flex items-center w-full px-3 py-2 text-sm`}
                                     >
                                       <AiOutlineDashboard className='w-5 h-5' />
                                       <span className='ml-2'>Dashboard</span>
                                     </Link>
                                   )}
                                 </Menu.Item>
-                                <div className='py-3'>
-                                  <p className='text-center text-secondary'>-USER-</p>
-                                </div>
                                 <Menu.Item>
                                   {({ active }) => (
                                     <button
-                                      className={`${active ? 'bg-gray-100' : 'text-gray-900'
-                                        } group flex items-center w-full px-3 py-2 text-sm`}
+                                      className={`${
+                                        active ? 'bg-gray-100' : 'text-gray-900'
+                                      } group flex items-center w-full px-3 py-2 text-sm`}
                                     >
                                       <AiOutlineSetting className='w-5 h-5' />
                                       <span className='ml-2'>Settings</span>
@@ -429,8 +318,9 @@ function SiteLayout(props) {
                                 <Menu.Item>
                                   {({ active }) => (
                                     <button
-                                      className={`${active ? 'bg-gray-100' : 'text-gray-900'
-                                        } group flex items-center w-full px-3 py-2 text-sm`}
+                                      className={`${
+                                        active ? 'bg-gray-100' : 'text-gray-900'
+                                      } group flex items-center w-full px-3 py-2 text-sm`}
                                     >
                                       <AiOutlineCreditCard className='w-5 h-5' />
                                       <span className='ml-2'>Billing</span>
@@ -441,8 +331,9 @@ function SiteLayout(props) {
                                   {({ active }) => (
                                     <button
                                       onClick={onLogout}
-                                      className={`${active ? 'bg-gray-100' : 'text-gray-900'
-                                        } group flex items-center w-full px-3 py-2 text-sm`}
+                                      className={`${
+                                        active ? 'bg-gray-100' : 'text-gray-900'
+                                      } group flex items-center w-full px-3 py-2 text-sm`}
                                     >
                                       <AiOutlineExport className='w-5 h-5 text-secondary' />
                                       <span className='ml-2 text-secondary'>Logout</span>
