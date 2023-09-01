@@ -25,11 +25,14 @@ import { useEffectOnce } from 'react-use'
 import { LoadingSpin } from '@/components/common/Loading'
 import Cookies from 'js-cookie'
 import { HiPlus } from 'react-icons/hi'
+import { getServicesAPI } from '@/apis/deployment_apis'
+import { v4 as uuidv4 } from 'uuid'
 
 const ignoreHeaderURLsList = [
   'rgx:^/auth',
   'rgx:^/lien-ket'
 ]
+
 
 const Toast = dynamic(() => import('./Toast'), { ssr: false })
 const GoTop = dynamic(() => import('./GoTop'), { ssr: false })
@@ -37,6 +40,9 @@ const GoTop = dynamic(() => import('./GoTop'), { ssr: false })
 function SiteLayout (props) {
   const router = useRouter()
   const { Auth, setAuth } = useContext(AuthContext)
+  const [loading, setLoading] = React.useState(false)
+  const [serviceList, setServiceList] = React.useState([])
+
 
   for (const i of ignoreHeaderURLsList) {
     if (i.startsWith('rgx')) {
@@ -56,6 +62,7 @@ function SiteLayout (props) {
       setAuth(res.data)
     }).catch((err) => {
       console.log(err)
+      router.push('/login')
       setAuth(null)
     })
   }
@@ -68,8 +75,20 @@ function SiteLayout (props) {
     router.push('/login')
   }
 
+  const getServices = async () => {
+    await getServicesAPI().then((res) => {
+      const response = res.data
+      setServiceList(response.data)
+    }).catch((err) => {
+      console.log(err)
+    }).finally(() => {
+      setLoading(false)
+    })
+  }
+
   useEffectOnce(() => {
     getMyProfile()
+    getServices()
   })
 
   return (
@@ -126,34 +145,24 @@ function SiteLayout (props) {
                         >
                           <Menu.Items>
                             <div className='absolute p-2 right-0 w-56 mt-1 origin-top-right bg-white divide-y divide-gray-100 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none'>
-                              <Menu.Item>
-                                {({ active }) => (
-                                  <Link
-                                    className={`${
-                                      active ? 'bg-gray-100' : 'text-gray-900'
-                                    } group flex items-center w-full px-3 py-2 text-sm`}
-                                    href='/select-repo?type=static'
-                                    title='Create new package'
-                                  >
-                                    <AiOutlineLayout className='w-5 h-5' />
-                                    <span className='ml-2'>Static Site</span>
-                                  </Link>
-                                )}
-                              </Menu.Item>
-                              <Menu.Item>
-                                {({ active }) => (
-                                  <Link
-                                    className={`${
-                                      active ? 'bg-gray-100' : 'text-gray-900'
-                                    } group flex items-center w-full px-3 py-2 text-sm`}
-                                    href='/select-repo?type=web-service'
-                                    title='Create new package'
-                                  >
-                                    <AiOutlineCloudServer className='w-5 h-5' />
-                                    <span className='ml-2'>Web service</span>
-                                  </Link>
-                                )}
-                              </Menu.Item>
+                              {
+                                serviceList.map((item, index) =>
+                                  <Menu.Item key={uuidv4()} >
+                                    {({ active }) => (
+                                      <Link
+                                        className={`${
+                                          active ? 'bg-gray-100' : 'text-gray-900'
+                                        } group flex items-center w-full px-3 py-2 text-sm`}
+                                        href={`/select-repo?type=${item?.slug}`}
+                                        title='Create new package'
+                                      >
+                                        <AiOutlineLayout className='w-5 h-5' />
+                                        <span className='ml-2'>{item?.name}</span>
+                                      </Link>
+                                    )}
+                                  </Menu.Item>
+                                )
+                              }
                             </div>
                           </Menu.Items>
                         </Transition>
@@ -265,9 +274,6 @@ function SiteLayout (props) {
                           >
                             <Menu.Items>
                               <div className='absolute p-2 right-0 w-64 mt-1 origin-top-right bg-white divide-y divide-gray-100 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none'>
-                                <div className='py-3'>
-                                  <p className='text-center text-secondary'>-NEW-</p>
-                                </div>
                                 <Menu.Item>
                                   {({ active }) => (
                                     <Link
@@ -282,9 +288,6 @@ function SiteLayout (props) {
                                     </Link>
                                   )}
                                 </Menu.Item>
-                                <div className='py-3'>
-                                  <p className='text-center text-secondary'>-PAGE-</p>
-                                </div>
                                 <Menu.Item>
                                   {({ active }) => (
                                     <Link
@@ -299,9 +302,6 @@ function SiteLayout (props) {
                                     </Link>
                                   )}
                                 </Menu.Item>
-                                <div className='py-3'>
-                                 <p className='text-center text-secondary'>-USER-</p>
-                                </div>
                                 <Menu.Item>
                                   {({ active }) => (
                                     <button
@@ -438,6 +438,7 @@ const Header = styled.div`
   ${tw`
     w-[100%]
     bg-primary
+    sticky
     p-2
   `}
 `

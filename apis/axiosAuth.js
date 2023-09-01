@@ -3,7 +3,7 @@ import axios from 'axios'
 import Cookies from 'js-cookie'
 
 const instanceAxios = axios.create({
-  timeout: 30000
+  timeout: 30000,
 })
 
 // Get/Set token

@@ -34,7 +34,7 @@ function Index ({ jobs, ...props }) {
   })
 
   const onClickDeployment = (deployment) => {
-    router.push(`/${deployment.service_name}/[code]`, `/${deployment.service_name}/${deployment.code}`)
+    router.push(`/${deployment.service_slug}/[code]`, `/${deployment.service_slug}/${deployment.code}`)
   }
 
   if (loading || !deployments) {

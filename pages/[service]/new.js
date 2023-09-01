@@ -3,11 +3,13 @@ import { useEffectOnce } from 'react-use'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Form, Input, Select } from 'antd'
-import SubmitButton from '@/components/buttons'
+import SubmitButton, { Button } from '@/components/buttons'
 import { LoadingSpin } from '@/components/common/Loading'
 import { createDeploymentAPI, getPackageListAPI, getRuntimeListAPI } from '@/apis/deployment_apis'
 import { toast } from 'react-toastify'
 import { v4 as uuidv4 } from 'uuid'
+import { RiDeleteBin5Line } from 'react-icons/ri'
+
 function NewServicePage ({ serviceName }) {
   const [selectedRepo, setSelectedRepo] = useState(null)
   const router = useRouter()
@@ -18,7 +20,7 @@ function NewServicePage ({ serviceName }) {
   const [runtimeList, setRuntimeList] = useState(null)
   const [loadingRuntime, setLoadingRuntime] = useState(false)
   const [loadingPackage, setLoadingPackage] = useState(false)
-  const [packageList, setPackageList] = useState(null)
+  const [packageList, setPackageList] = useState([])
   const [selectedPackageCode, setSelectedPackageCode] = useState(null)
 
   useEffectOnce(() => {
@@ -64,13 +66,13 @@ function NewServicePage ({ serviceName }) {
 
   const onCreateService = async (values) => {
     setLoading(true)
-    // router.push('/static/[id]', '/static/123')
     const data = {
       ...values,
       githubURL: selectedRepo.url,
       serviceType: router.query.service,
       packageCode: selectedPackageCode,
-      runtimeCode: selectedRunTime
+      runtimeCode: selectedRunTime,
+      env: values.values
     }
     createDeploymentAPI(data).then(res => {
       setLoading(false)
@@ -111,7 +113,7 @@ function NewServicePage ({ serviceName }) {
         }}
         onFinish={onCreateService}
       >
-
+        <p className='font-semibold text- xl'>Settings</p>
         <Form.Item
           rules={[{ required: true, message: 'Please provide your project name!' }]}
           label={
@@ -150,11 +152,11 @@ function NewServicePage ({ serviceName }) {
             }
           }}
           wrapperCol={{ span: 24 }}
-        >
+                                                   >
           <Input placeholder='' style={{ border: '1px solid black', borderRadius: '0' }} />
         </Form.Item>}
 
-        {router.query.service === 'web-service' && <Form.Item
+        <Form.Item
           rules={[{ required: true, message: 'Please provide your project port!' }]}
           label={
             <div style={{ display: 'flex', alignItems: 'start', flexDirection: 'column', height: '30px' }}>
@@ -175,7 +177,7 @@ function NewServicePage ({ serviceName }) {
             }
           }}
           wrapperCol={{ span: 24 }}
-                                                   >
+        >
           <Select
             value={selectedRunTime}
             onChange={value => setSelectedRunTime(value)}
@@ -186,7 +188,7 @@ function NewServicePage ({ serviceName }) {
               <Option key={index} value={item.code}>{item.name}</Option>
             ))}
           </Select>
-        </Form.Item>}
+        </Form.Item>
 
         <Form.Item
           rules={[{ required: true, message: 'Please provide your branch!' }]}
@@ -204,7 +206,7 @@ function NewServicePage ({ serviceName }) {
           <Input placeholder='service-name-example' style={{ border: '1px solid black', borderRadius: '0' }} />
         </Form.Item>
 
-        {router.query.service === 'static' && <Form.Item
+        <Form.Item
           rules={[{ required: false }]}
           label={
             <div style={{ display: 'flex', alignItems: 'start', flexDirection: 'column', maxWidth: '350px' }}>
@@ -233,7 +235,7 @@ function NewServicePage ({ serviceName }) {
           wrapperCol={{ span: 24 }}
                                               >
           <Input placeholder='e.g src' style={{ border: '1px solid black', borderRadius: '0' }} />
-        </Form.Item>}
+        </Form.Item>
 
         <Form.Item
           rules={[{ required: false }]}
@@ -257,7 +259,7 @@ function NewServicePage ({ serviceName }) {
             }
           }}
           wrapperCol={{ span: 24 }}
-                                              >
+        >
           <Input placeholder='' style={{ border: '1px solid black', borderRadius: '0' }} />
         </Form.Item>
 
@@ -292,7 +294,6 @@ function NewServicePage ({ serviceName }) {
         >
           <Input placeholder='e.g build' style={{ border: '1px solid black', borderRadius: '0' }} />
         </Form.Item>
-
         <div className='pb-10'>
           <div className='w-full grid grid-cols-12 px-3'>
             <p className='col-span-5'>NAME</p>
@@ -303,7 +304,48 @@ function NewServicePage ({ serviceName }) {
           {
             loadingPackage ? <LoadingSpin /> : packageList?.map(item => <PackageRow pack={item} key={uuidv4()} onClick={() => setSelectedPackageCode(item?.code)} isSelected={selectedPackageCode === item?.code} />)
           }
+          {
+            !loadingPackage && packageList?.length === 0 ? <div className='w-100 text-center py-5 text-gray-400'>No packages found.</div> : undefined
+          }
         </div>
+        <p className='font-semibold text- xl'>Environment</p>
+        <Form.List
+          name='values'
+        >
+          {(fields, { add, remove }, { errors }) => (
+            <>
+              {fields.map((field, index) => (
+                <Form.Item
+                  required={false}
+                  key={field.key}
+                  style={{ marginBottom: '15px' }}
+                >
+                  <div className='flex gap-3'>
+                    <Form.Item initialValue='' name={[field.name, 'key']} style={{ marginBottom: '0px', width: '45%' }}>
+                      <Input placeholder='key' style={{ border: '1px solid black', borderRadius: '0' }} />
+                    </Form.Item>
+                    <Form.Item initialValue='' name={[field.name, 'value']} style={{ marginBottom: '0px', width: '45%' }}>
+                      <Input placeholder='value' style={{ border: '1px solid black', borderRadius: '0' }} />
+                    </Form.Item>
+                    <div className=' h-full'>
+                      <Button onClick={() => remove(index)}>
+                        <RiDeleteBin5Line className='text-xl mx-3' />
+                      </Button>
+                    </div>
+                  </div>
+                </Form.Item>
+              ))}
+              <Form.Item style={{ marginBottom: '15px' }}>
+                <div className='w-fit'>
+                  <Button onClick={() => add()}>
+                    Add Environment Variable
+                  </Button>
+                </div>
+              </Form.Item>
+            </>
+
+          )}
+        </Form.List>
 
         <Form.Item>
           <SubmitButton htmltype='submit' className='bg-primary py-2 px-3 border-2 border-black text-black font-semibold active:outline-dashed w-auto'>

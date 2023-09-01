@@ -14,12 +14,25 @@ function SelectRepoPage ({ serviceName }) {
   const [githubRepos, setGithubRepos] = useState(null)
   const [githubUser, setGithubUser] = useState(null)
   const router = useRouter()
+  const [deployType, setDeployType] = useState('')
 
   useEffectOnce(() => {
     const query = new URLSearchParams(window.location.search)
     const code = query.get('code')
+    if (router.query.type) {
+      console.log(router.query.type)
+      setDeployType(router.query.type)
+      // eslint-disable-next-line no-undef
+      localStorage.setItem('type', router.query.type)
+    }
     if (code) {
       loginGithubAccount(code)
+      query.delete('code')
+      // eslint-disable-next-line no-undef
+      const type = localStorage.getItem('type')
+      const newUrl = `${window.location.pathname}?type=${type}`
+      setDeployType(type)
+      window.history.replaceState({}, '', newUrl)
     } else {
       getGithubRepos()
     }
@@ -51,10 +64,9 @@ function SelectRepoPage ({ serviceName }) {
   }
 
   const selectRepo = (repo) => {
-    console.log(repo)
     // eslint-disable-next-line no-undef
     localStorage.setItem('selectedRepo', JSON.stringify(repo))
-    router.push(`/${router.query.type}/new`)
+    router.push(`/${deployType}/new`)
   }
 
   const githubAuth = () => {
@@ -83,7 +95,7 @@ function SelectRepoPage ({ serviceName }) {
                         <span>GitHub</span>
                       </>
                   }
-                            </button>
+                  </button>
               // eslint-disable-next-line react/jsx-key
               : githubRepos.map(repo => <GithubRepo repo={repo} key={uuidv4()} onClick={() => selectRepo(repo)} />)}
           </div>
@@ -102,9 +114,22 @@ function SelectRepoPage ({ serviceName }) {
 export default SelectRepoPage
 
 const getServicesName = (query) => {
-  if (query === 'static') return 'Static Site'
-  if (query === 'web-service') return 'Web Service'
-  return 'Service'
+  // Tách chuỗi theo dấu gạch ngang và chuyển thành mảng các từ
+  const words = query.split('-')
+
+  // Chuyển các từ thành chuỗi đầu viết hoa, còn lại viết thường
+  const formattedWords = words.map((word, index) => {
+    if (index === 0) {
+      return word.charAt(0).toUpperCase() + word.slice(1)
+    } else {
+      return word.toLowerCase()
+    }
+  })
+
+  // Ghép các từ lại để tạo chuỗi định dạng "Web Service"
+  const formattedText = formattedWords.join(' ')
+
+  return formattedText
 }
 
 export async function getServerSideProps (context) {
@@ -135,7 +160,6 @@ const GithubRepo = ({ repo, onClick, ...props }) => {
 
 const GithubUser = ({ user = null, ...props }) => {
   if (!user) return
-
   return (
     <div className='flex items-center gap-2 text-black font-semibold' {...props}>
       <img className='w-8 h-8 rounded-full' src={user?.avatar_url} alt='Github avatar' />
